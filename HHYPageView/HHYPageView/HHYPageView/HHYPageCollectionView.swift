@@ -34,8 +34,27 @@ class HHYPageCollectionView: UIView {
 extension HHYPageCollectionView {
     fileprivate func setupUI() {
         // 1.创建titleView
-//        let titleY = isTitleTop ? 0 : style.titleHeight
-//        let titleFrame = CGRect(x: 0, y: <#T##CGFloat#>, width: <#T##CGFloat#>, height: <#T##CGFloat#>)
-//        let titleView = HHYTitileView(frame: frame, titles: titles, style: style)
+        let titleY = isTitleTop ? 0 : style.titleHeight
+        let titleFrame = CGRect(x: 0, y: titleY, width: bounds.width, height: style.titleHeight)
+        let titleView = HHYTitileView(frame: titleFrame, titles: titles, style: style)
+        titleView.backgroundColor = UIColor.randomColor()
+        addSubview(titleView)
+        
+        // 2.创建UIPageControl
+        let pageControlHeight: CGFloat = 20
+        let pageControlY = isTitleTop ? bounds.height - pageControlHeight : (bounds.height - pageControlHeight - style.titleHeight)
+        let pageControlFrame = CGRect(x: 0, y: pageControlY, width: bounds.width, height: pageControlHeight)
+        let pageControl = UIPageControl(frame: pageControlFrame)
+        pageControl.numberOfPages = 4
+        addSubview(pageControl)
+        pageControl.backgroundColor = UIColor.randomColor()
+        
+        // 3.创建UICollectionView
+        let collectionViewY = isTitleTop ? style.titleHeight : 0
+        let collectionViewFrame = CGRect(x: 0, y: collectionViewY, width: bounds.width, height: bounds.height - style.titleHeight - pageControlHeight)
+        
+        let collectionView = UICollectionView(frame: collectionViewFrame, collectionViewLayout: layout)
+        addSubview(collectionView)
+        collectionView.backgroundColor = UIColor.randomColor()
     }
 }

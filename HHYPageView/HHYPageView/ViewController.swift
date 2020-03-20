@@ -13,7 +13,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        addChildVC()
+        addChildCollectionView()
+        // addChildVC()
         
         
     }
@@ -22,6 +23,24 @@ class ViewController: UIViewController {
 }
 
 extension ViewController {
+    
+    // 子视图是collectionView
+    fileprivate func addChildCollectionView() {
+        // 1.标题
+        let titles = ["游戏", "娱乐娱乐娱乐", "新闻", "科学学", "技术", "游戏", "娱乐娱乐娱乐", "新闻", "科学学", "技术"]
+        let style = HHYTitleStyle()
+        style.isShowCover = false
+        
+        // 3.pageView的frame
+        let pageFrame = CGRect(x: 0, y: 100, width: view.bounds.width, height: 300)
+        
+        // 4.创建HHYPageView,并且添加到控制器的view中
+        let layout = UICollectionViewFlowLayout()
+        let pageView = HHYPageCollectionView(frame: pageFrame, titles: titles, style: style, isTitleTop: false, layout: layout)
+        
+        view.addSubview(pageView)
+    }
+    
     // 子视图是控制器
     fileprivate func addChildVC() {
         // 1.标题
