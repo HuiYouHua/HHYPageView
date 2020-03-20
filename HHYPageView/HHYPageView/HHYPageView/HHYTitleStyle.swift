@@ -14,27 +14,27 @@ class HHYTitleStyle {
     /// 普通Title颜色
     var normalColor: UIColor = UIColor(r: 0, g: 0, b: 0)
     /// 选中Title颜色
-    var selectColor: UIColor = UIColor(r: 255, g: 127, b: 0)
+    var selectColor: UIColor = UIColor(r: 255, g: 0, b: 0)
     /// Title字体大小
     var fontSize: CGFloat = 15.0
     /// 是否是滚动的Title
-    var isScrollEnable: Bool = false
+    var isScrollEnable: Bool = true
     /// 滚动Title的字体间距
     var itemMargin: CGFloat = 30
     
     /// 是否显示底部滚动条
-    var isShowScrollLine: Bool = false
+    var isShowScrollLine: Bool = true
     /// 底部滚动条的颜色
     var scrollLineHeight: CGFloat = 2
     /// 底部滚动条的高度
     var scrollLineColor: UIColor = .orange
     
     /// 是否进行缩放
-    var isNeedScale : Bool = false
-    var scaleRange : CGFloat = 1.2
+    var isNeedScale : Bool = true
+    var scaleRange : CGFloat = 1.3
     
     /// 是否显示遮盖
-    var isShowCover : Bool = false
+    var isShowCover : Bool = true
     /// 遮盖背景颜色
     var coverBgColor : UIColor = UIColor.lightGray
     /// 文字&遮盖间隙

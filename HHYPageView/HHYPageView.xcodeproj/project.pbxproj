@@ -19,6 +19,7 @@
 		7841CAB424221C9C00890FC3 /* UIColor-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7841CAB324221C9C00890FC3 /* UIColor-Extension.swift */; };
 		7841CAB624221E6F00890FC3 /* HHYTitleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7841CAB524221E6F00890FC3 /* HHYTitleStyle.swift */; };
 		7841CAB824222C1D00890FC3 /* ScreenFrameExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7841CAB724222C1D00890FC3 /* ScreenFrameExtension.swift */; };
+		78A822332424CA7D007AA69D /* HHYPageCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78A822322424CA7D007AA69D /* HHYPageCollectionView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		7841CAB324221C9C00890FC3 /* UIColor-Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor-Extension.swift"; sourceTree = "<group>"; };
 		7841CAB524221E6F00890FC3 /* HHYTitleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HHYTitleStyle.swift; sourceTree = "<group>"; };
 		7841CAB724222C1D00890FC3 /* ScreenFrameExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenFrameExtension.swift; sourceTree = "<group>"; };
+		78A822322424CA7D007AA69D /* HHYPageCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HHYPageCollectionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +91,7 @@
 				7841CAB524221E6F00890FC3 /* HHYTitleStyle.swift */,
 				7841CAAF24221ACB00890FC3 /* HHYTitileView.swift */,
 				7841CAB124221AD500890FC3 /* HHYContentView.swift */,
+				78A822322424CA7D007AA69D /* HHYPageCollectionView.swift */,
 			);
 			path = HHYPageView;
 			sourceTree = "<group>";
@@ -167,6 +170,7 @@
 				7841CA9D24221A6E00890FC3 /* ViewController.swift in Sources */,
 				7841CAAE24221AC000890FC3 /* HHYPageView.swift in Sources */,
 				7841CAB624221E6F00890FC3 /* HHYTitleStyle.swift in Sources */,
+				78A822332424CA7D007AA69D /* HHYPageCollectionView.swift in Sources */,
 				7841CA9924221A6E00890FC3 /* AppDelegate.swift in Sources */,
 				7841CAB024221ACB00890FC3 /* HHYTitileView.swift in Sources */,
 				7841CAB224221AD500890FC3 /* HHYContentView.swift in Sources */,

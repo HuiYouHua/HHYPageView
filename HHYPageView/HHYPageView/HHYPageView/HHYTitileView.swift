@@ -40,6 +40,8 @@ class HHYTitileView: UIView {
     fileprivate lazy var botomline: UIView = {
        let bottomLine = UIView()
         bottomLine.backgroundColor = self.style.scrollLineColor
+        bottomLine.frame.size.height = self.style.scrollLineHeight
+        bottomLine.frame.origin.y = self.bounds.height - self.style.scrollLineHeight
         return bottomLine
     }()
     fileprivate lazy var coverView : UIView = {
@@ -69,6 +71,7 @@ extension HHYTitileView {
     fileprivate func setupUI() {
         // 1.将scrollView添加到view中
         addSubview(scrollView)
+        addSubview(splitLineView)
         
         // 2.将titleLabel添加到scrollView中
         setupTitleLabel()
@@ -79,6 +82,11 @@ extension HHYTitileView {
         // 4.添加滚动条
         if style.isShowScrollLine {
             scrollView.addSubview(botomline)
+        }
+        
+        // 5.设置遮盖的View
+        if style.isShowCover {
+            setupCoverView()
         }
     }
     
@@ -105,15 +113,15 @@ extension HHYTitileView {
         
         let count = titles.count
         
+        var w: CGFloat = 0
+        let h: CGFloat = bounds.height
+        var x: CGFloat = 0
+        let y: CGFloat = 0
         for (i, label) in titleLabels.enumerated() {
-            var w: CGFloat = 0
-            let h: CGFloat = bounds.height
-            var x: CGFloat = 0
-            let y: CGFloat = 0
-            
+
             if style.isScrollEnable {
                 // 可以滚动
-                w = (titles[i] as NSString).boundingRect(with: CGSize(width: CGFloat(MAXFLOAT), height: 0), options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: label.font!], context: nil).width
+                w = (titles[i] as NSString).boundingRect(with: CGSize(width: CGFloat(MAXFLOAT), height: 0), options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: label.font!], context: nil).width + 8
                 if i == 0 {
                     x = style.itemMargin * 0.5
                 } else {
@@ -133,11 +141,34 @@ extension HHYTitileView {
             }
             
             label.frame = CGRect(x: x, y: y, width: w, height: h)
+
+            // 先设置frame再设置放大
+            if i == 0 && style.isNeedScale {
+                label.transform = CGAffineTransform(scaleX: style.scaleRange, y: style.scaleRange)
+            }
         }
         
         scrollView.contentSize = style.isScrollEnable ?
             CGSize(width: titleLabels.last!.frame.maxX + style.itemMargin * 0.5, height: 0)
             : CGSize.zero
+    }
+    
+    fileprivate func setupCoverView() {
+        scrollView.insertSubview(coverView, at: 0)
+        let firstLabel = titleLabels[0]
+        var coverW = firstLabel.frame.width
+        let coverH = style.coverH
+        var coverX = firstLabel.frame.origin.x
+        let coverY = (bounds.height - coverH) * 0.5
+        
+        if style.isScrollEnable {
+            coverX -= style.coverMargin
+            coverW += style.coverMargin * 2
+        }
+        coverView.frame = CGRect(x: coverX, y: coverY, width: coverW, height: coverH)
+        
+        coverView.layer.cornerRadius = style.coverRadius
+        coverView.layer.masksToBounds = true
     }
 }
 
@@ -146,6 +177,9 @@ extension HHYTitileView {
     @objc fileprivate func titleLabelClick(_ tapGes: UITapGestureRecognizer) {
         // 1.取出用户点击的View
         let targetLabel = tapGes.view as! UILabel
+        guard currentIndex != targetLabel.tag else {
+            return
+        }
         
         // 2.调整titleView
         adjustTitlteLabel(targetIndex: targetLabel.tag)
@@ -188,6 +222,22 @@ extension HHYTitileView {
             offsetX = scrollView.contentSize.width - scrollView.bounds.width
         }
         scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: true)
+        
+        // 5.设置缩放比例
+        if style.isNeedScale {
+            sourceLabel.transform = CGAffineTransform.identity
+            targetLabel.transform = CGAffineTransform(scaleX: style.scaleRange, y: style.scaleRange)
+        }
+        
+        // 6.设置遮罩
+        if style.isShowCover {
+            let coverX = style.isScrollEnable ? (targetLabel.frame.origin.x - style.coverMargin) : sourceLabel.frame.origin.x
+            let coverW = style.isScrollEnable ? (targetLabel.frame.width + style.coverMargin * 2) : sourceLabel.frame.width
+            UIView.animate(withDuration: 0.15, animations: {
+                self.coverView.frame.origin.x = coverX
+                self.coverView.frame.size.width = coverW
+            })
+        }
     }
 }
 
@@ -221,11 +271,24 @@ extension HHYTitileView: HHYContentViewDelegate {
         sourceLabel.textColor = UIColor(r: selectedRGB.0 - deltaRGB.0 * progress, g: selectedRGB.1 - deltaRGB.1 * progress, b: selectedRGB.2 - deltaRGB.2 * progress)
         
         // 3.下划线渐变
+        let deltaX = targetLabel.frame.origin.x - sourceLabel.frame.origin.x
+        let deltaW = targetLabel.frame.size.width - sourceLabel.frame.size.width
         if style.isShowScrollLine {
-            let deltaX = targetLabel.frame.origin.x - sourceLabel.frame.origin.x
-            let deltaW = targetLabel.frame.size.width - sourceLabel.frame.size.width
             botomline.frame.origin.x = sourceLabel.frame.origin.x + deltaX * progress
             botomline.frame.size.width = sourceLabel.frame.size.width + deltaW * progress
+        }
+        
+        // 4.设置缩放比例
+        if style.isNeedScale {
+            let scaleDelta = (style.scaleRange - 1.0) * progress
+            sourceLabel.transform = CGAffineTransform(scaleX: style.scaleRange - scaleDelta, y: style.scaleRange - scaleDelta)
+            targetLabel.transform = CGAffineTransform(scaleX: 1.0 + scaleDelta, y: 1.0 + scaleDelta)
+        }
+        
+        // 5.设置遮罩
+        if style.isShowCover {
+            coverView.frame.size.width = style.isScrollEnable ? (sourceLabel.frame.width + 2 * style.coverMargin + deltaW * progress) : (sourceLabel.frame.width + deltaW * progress)
+            coverView.frame.origin.x = style.isScrollEnable ? (sourceLabel.frame.origin.x - style.coverMargin + deltaX * progress) : (sourceLabel.frame.origin.x + deltaX * progress)
         }
     }
 }

@@ -13,11 +13,21 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        addChildVC()
+        
+        
+    }
+
+
+}
+
+extension ViewController {
+    // 子视图是控制器
+    fileprivate func addChildVC() {
         // 1.标题
         let titles = ["游戏", "娱乐娱乐娱乐", "新闻", "科学学", "技术", "游戏", "娱乐娱乐娱乐", "新闻", "科学学", "技术"]
         let style = HHYTitleStyle()
-        style.isScrollEnable = true
-        style.isShowScrollLine = true
+        style.isShowCover = false
         
         // 2.子控制器
         var childVcs = [UIViewController]()
@@ -34,10 +44,6 @@ class ViewController: UIViewController {
         let pageView = HHYPageView(frame: pageFrame, titles: titles, childVcs: childVcs, parentVc: self, style: style)
         
         view.addSubview(pageView)
-        
-        
     }
-
-
 }
 
