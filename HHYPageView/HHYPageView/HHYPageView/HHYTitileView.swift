@@ -13,7 +13,7 @@ protocol HHYTitileViewDelegate: class {
 }
 
 class HHYTitileView: UIView {
-
+    
     // MARK: 对外属性
     weak var delegate: HHYTitileViewDelegate?
     
@@ -38,7 +38,7 @@ class HHYTitileView: UIView {
         return splitView
     }()
     fileprivate lazy var botomline: UIView = {
-       let bottomLine = UIView()
+        let bottomLine = UIView()
         bottomLine.backgroundColor = self.style.scrollLineColor
         bottomLine.frame.size.height = self.style.scrollLineHeight
         bottomLine.frame.origin.y = self.bounds.height - self.style.scrollLineHeight
@@ -98,7 +98,7 @@ extension HHYTitileView {
             titleLabel.tag = i
             titleLabel.textAlignment = .center
             titleLabel.textColor = i == 0 ? style.selectColor : style.normalColor
-
+            
             scrollView.addSubview(titleLabel)
             
             titleLabels.append(titleLabel)
@@ -118,7 +118,7 @@ extension HHYTitileView {
         var x: CGFloat = 0
         let y: CGFloat = 0
         for (i, label) in titleLabels.enumerated() {
-
+            
             if style.isScrollEnable {
                 // 可以滚动
                 w = (titles[i] as NSString).boundingRect(with: CGSize(width: CGFloat(MAXFLOAT), height: 0), options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: label.font!], context: nil).width + 8
@@ -141,7 +141,7 @@ extension HHYTitileView {
             }
             
             label.frame = CGRect(x: x, y: y, width: w, height: h)
-
+            
             // 先设置frame再设置放大
             if i == 0 && style.isNeedScale {
                 label.transform = CGAffineTransform(scaleX: style.scaleRange, y: style.scaleRange)
@@ -197,7 +197,54 @@ extension HHYTitileView {
         
     }
     
-    fileprivate func adjustTitlteLabel(targetIndex: Int) {
+}
+
+extension HHYTitileView {
+    func setTitleWithProgress(_ progress : CGFloat, sourceIndex : Int, targetIndex : Int) {
+        // 1.取出label
+        let targetLabel = titleLabels[targetIndex]
+        /**
+         这种在连续滑动的情况下不适用
+         因为连续滑动的时候在HHYContentView中
+         scrollView的代理方法只会走scrollViewDidEndDragging:willDecelerate:方法,且decelerate为true,表示手指离开屏幕后,视图还有惯性自动滚动一段距离
+         而不会走scrollViewDidEndDragging:willDecelerate:方法,且decelerate为false和scrollViewDidEndDecelerating(滑动视图自动减速结束的回调)
+         这样就无法更新最新的currentIndex了,导致视图出现错误
+         因此我们需要在外面计算目标序号和原始序号
+         */
+        //        let sourceLabel = titleLabels[currentIndex]
+        let sourceLabel = titleLabels[sourceIndex]
+        
+        // 2.文字颜色渐变
+        let deltaRGB = UIColor.getRGBDelta(style.selectColor, style.normalColor)
+        let selectedRGB = style.selectColor.getRGB()
+        let normalRGB = style.normalColor.getRGB()
+        
+        targetLabel.textColor = UIColor(r: normalRGB.0 + deltaRGB.0 * progress, g: normalRGB.1 + deltaRGB.1 * progress, b: normalRGB.2 + deltaRGB.2 * progress)
+        sourceLabel.textColor = UIColor(r: selectedRGB.0 - deltaRGB.0 * progress, g: selectedRGB.1 - deltaRGB.1 * progress, b: selectedRGB.2 - deltaRGB.2 * progress)
+        
+        // 3.下划线渐变
+        let deltaX = targetLabel.frame.origin.x - sourceLabel.frame.origin.x
+        let deltaW = targetLabel.frame.size.width - sourceLabel.frame.size.width
+        if style.isShowScrollLine {
+            botomline.frame.origin.x = sourceLabel.frame.origin.x + deltaX * progress
+            botomline.frame.size.width = sourceLabel.frame.size.width + deltaW * progress
+        }
+        
+        // 4.设置缩放比例
+        if style.isNeedScale {
+            let scaleDelta = (style.scaleRange - 1.0) * progress
+            sourceLabel.transform = CGAffineTransform(scaleX: style.scaleRange - scaleDelta, y: style.scaleRange - scaleDelta)
+            targetLabel.transform = CGAffineTransform(scaleX: 1.0 + scaleDelta, y: 1.0 + scaleDelta)
+        }
+        
+        // 5.设置遮罩
+        if style.isShowCover {
+            coverView.frame.size.width = style.isScrollEnable ? (sourceLabel.frame.width + 2 * style.coverMargin + deltaW * progress) : (sourceLabel.frame.width + deltaW * progress)
+            coverView.frame.origin.x = style.isScrollEnable ? (sourceLabel.frame.origin.x - style.coverMargin + deltaX * progress) : (sourceLabel.frame.origin.x + deltaX * progress)
+        }
+    }
+    
+    func adjustTitlteLabel(targetIndex: Int) {
         
         if targetIndex == currentIndex { return }
         
@@ -237,58 +284,6 @@ extension HHYTitileView {
                 self.coverView.frame.origin.x = coverX
                 self.coverView.frame.size.width = coverW
             })
-        }
-    }
-}
-
-// MARK: - HHYContentViewDelegate
-extension HHYTitileView: HHYContentViewDelegate {
-    func contentView(_ contentView: HHYContentView, targetIndex: Int) {
-        adjustTitlteLabel(targetIndex: targetIndex)
-    }
-    
-    func contentView(_ contentView: HHYContentView, targetIndex: Int, sourceIndex: Int, progress: CGFloat) {
-        
-        // 1.取出label
-        let targetLabel = titleLabels[targetIndex]
-        /**
-         这种在连续滑动的情况下不适用
-         因为连续滑动的时候在HHYContentView中
-         scrollView的代理方法只会走scrollViewDidEndDragging:willDecelerate:方法,且decelerate为true,表示手指离开屏幕后,视图还有惯性自动滚动一段距离
-         而不会走scrollViewDidEndDragging:willDecelerate:方法,且decelerate为false和scrollViewDidEndDecelerating(滑动视图自动减速结束的回调)
-         这样就无法更新最新的currentIndex了,导致视图出现错误
-         因此我们需要在外面计算目标序号和原始序号
-         */
-//        let sourceLabel = titleLabels[currentIndex]
-        let sourceLabel = titleLabels[sourceIndex]
-        
-        // 2.文字颜色渐变
-        let deltaRGB = UIColor.getRGBDelta(style.selectColor, style.normalColor)
-        let selectedRGB = style.selectColor.getRGB()
-        let normalRGB = style.normalColor.getRGB()
-        
-        targetLabel.textColor = UIColor(r: normalRGB.0 + deltaRGB.0 * progress, g: normalRGB.1 + deltaRGB.1 * progress, b: normalRGB.2 + deltaRGB.2 * progress)
-        sourceLabel.textColor = UIColor(r: selectedRGB.0 - deltaRGB.0 * progress, g: selectedRGB.1 - deltaRGB.1 * progress, b: selectedRGB.2 - deltaRGB.2 * progress)
-        
-        // 3.下划线渐变
-        let deltaX = targetLabel.frame.origin.x - sourceLabel.frame.origin.x
-        let deltaW = targetLabel.frame.size.width - sourceLabel.frame.size.width
-        if style.isShowScrollLine {
-            botomline.frame.origin.x = sourceLabel.frame.origin.x + deltaX * progress
-            botomline.frame.size.width = sourceLabel.frame.size.width + deltaW * progress
-        }
-        
-        // 4.设置缩放比例
-        if style.isNeedScale {
-            let scaleDelta = (style.scaleRange - 1.0) * progress
-            sourceLabel.transform = CGAffineTransform(scaleX: style.scaleRange - scaleDelta, y: style.scaleRange - scaleDelta)
-            targetLabel.transform = CGAffineTransform(scaleX: 1.0 + scaleDelta, y: 1.0 + scaleDelta)
-        }
-        
-        // 5.设置遮罩
-        if style.isShowCover {
-            coverView.frame.size.width = style.isScrollEnable ? (sourceLabel.frame.width + 2 * style.coverMargin + deltaW * progress) : (sourceLabel.frame.width + deltaW * progress)
-            coverView.frame.origin.x = style.isScrollEnable ? (sourceLabel.frame.origin.x - style.coverMargin + deltaX * progress) : (sourceLabel.frame.origin.x + deltaX * progress)
         }
     }
 }
