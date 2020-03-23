@@ -34,7 +34,7 @@ class HHYTitleStyle {
     var scaleRange : CGFloat = 1.3
     
     /// 是否显示遮盖
-    var isShowCover : Bool = true
+    var isShowCover : Bool = false
     /// 遮盖背景颜色
     var coverBgColor : UIColor = UIColor.lightGray
     /// 文字&遮盖间隙
