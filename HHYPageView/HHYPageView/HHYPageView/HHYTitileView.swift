@@ -265,8 +265,11 @@ extension HHYTitileView {
         if offsetX < 0 {
             offsetX = 0
         }
-        if offsetX > (scrollView.contentSize.width - scrollView.bounds.width) {
-            offsetX = scrollView.contentSize.width - scrollView.bounds.width
+        let maxOffset = scrollView.contentSize.width - scrollView.bounds.width
+        if maxOffset < 0 {
+            offsetX = 0
+        } else if offsetX > maxOffset {
+            offsetX = maxOffset
         }
         scrollView.setContentOffset(CGPoint(x: offsetX, y: 0), animated: true)
         
